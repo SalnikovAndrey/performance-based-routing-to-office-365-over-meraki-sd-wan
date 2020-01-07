@@ -1,22 +1,32 @@
 import requests
 import socket
+import argparse
+import uuid
 from meraki_sdk.meraki_sdk_client import MerakiSdkClient
 from meraki_sdk.models.create_network_static_route_model import CreateNetworkStaticRouteModel
 from meraki_sdk.models.update_network_site_to_site_vpn_model import UpdateNetworkSiteToSiteVpnModel
 
-# Input parameters
+# URL to Microsoft Office 365 documentation:
+ms_url = 'https://endpoints.office.com/endpoints/worldwide?clientrequestid=' + str(uuid.uuid4())
 
-X_CISCO_MERAKI_API_KEY = input('Please, enter Cisco Meraki API key:')
-CLIENT = MerakiSdkClient(X_CISCO_MERAKI_API_KEY)
-NETWORK_ID = 'L_607985949695027090'
-DEFAULT_GATEWAY = "192.168.87.2"
-LINK = 'https://endpoints.office.com/endpoints/worldwide?clientrequestid=b10c5ed1-bad1-445f-b386-b919946339a7'
+# Create flags in order to pass mandatory arguments to the script
+parser = argparse.ArgumentParser(description='The following input is required: 1. API key, 2. Network ID, 3. Default '
+                                             'gateway.')
+flags = parser.add_argument_group('Mandatory arguments')
+flags.add_argument('-api', '-a', required=True, help='API key')
+flags.add_argument('-net', '-n', required=True, help='Network ID')
+flags.add_argument('-gw', '-g', required=True, help='Default gateway for the MS Office 365 networks on the VPN Hub')
+args = parser.parse_args()
 
+x_cisco_meraki_api_key = args.api
+network_id = args.net
+default_gateway = args.gw
 
 # Define the MXStaticRoutesController
-mx_static_routes_controller = CLIENT.mx_static_routes
+client = MerakiSdkClient(x_cisco_meraki_api_key)
+mx_static_routes_controller = client.mx_static_routes
 # Define MX controllers
-networks_controller = CLIENT.networks
+networks_controller = client.networks
 
 
 def get_static_routes(network_id):
@@ -25,28 +35,21 @@ def get_static_routes(network_id):
     (the routes with a description "O365 - X.X.X.X").
     """
     static_routes = mx_static_routes_controller.get_network_static_routes(network_id)
-    existing_o365_subnets = filter(lambda i: 'O365' in i['name'], static_routes)
-    existing_o365_subnets = [d['subnet'] for d in existing_o365_subnets]
+    # existing_o365_subnets = filter(lambda i: 'O365' in i['name'], static_routes)
+    # existing_o365_subnets = [d['subnet'] for d in existing_o365_subnets]
+    existing_o365_subnets = [r['subnet'] for r in static_routes if 'O365' in r['name']]
     print(f"Existing MS Office 365 routes on this VPN Hub (total: {len(existing_o365_subnets)} routes): {existing_o365_subnets}")
     return existing_o365_subnets
 
 
-def get_routes_from_microsoft(link):
+def get_routes_from_microsoft(url):
     """
     This function extracts JSON file from Microsoft website, filters out IP addresses,
     returns the list of unique IP addresses.
     """
-    new_routes = []
-    data = requests.get(link).json()
-    for i in data:
-        if 'ips' in i:
-            for l in i['ips']:
-                new_routes.append(l)
-        else:
-            pass
+    data = requests.get(url).json()
+    new_routes = [ip for entry in data for ip in entry.get('ips', [])]
     new_routes_unique = list(set(new_routes))
-    # OR (Alternative to above)
-    # new_routes_unique = list(dict.fromkeys(new_routes))
     return new_routes_unique
 
 
@@ -91,10 +94,10 @@ def route_injector(routes_to_inject):
     """
     This function injects static routes to MX.
     """
-    collect = {'network_id': NETWORK_ID}
+    collect = {'network_id': network_id}
     for subnet in routes_to_inject:
         create_network_static_route = CreateNetworkStaticRouteModel(name=('O365 - ' + subnet.split('/')[0]),
-                                                                    subnet=subnet, gateway_ip=DEFAULT_GATEWAY)
+                                                                    subnet=subnet, gateway_ip=default_gateway)
         collect['create_network_static_route'] = create_network_static_route
         result = mx_static_routes_controller.create_network_static_route(collect)
         print(f'Successfully added: {result}')
@@ -118,7 +121,7 @@ def route_delete(id_list):
     This function removes outdated static routes.
     """
     collect = {}
-    collect['network_id'] = NETWORK_ID
+    collect['network_id'] = network_id
     for sr in id_list:
         sr_id = sr
         collect['sr_id'] = sr_id
@@ -144,7 +147,7 @@ def to_advertise_vpn(object_list):
     This function advertises O365 routes over Meraki AutoVPN.
     """
     collect = {}
-    collect['network_id'] = NETWORK_ID
+    collect['network_id'] = network_id
 
     update_network_site_to_site_vpn = UpdateNetworkSiteToSiteVpnModel(mode=object_list['mode'],
                                                                       hubs=object_list['hubs'],
@@ -155,10 +158,10 @@ def to_advertise_vpn(object_list):
 
 
 # Fetch static routes from VPN Hub
-o365_routes_existing = get_static_routes(NETWORK_ID)
+o365_routes_existing = get_static_routes(network_id)
 
 # Extract JSON file from Microsoft website - tested
-all_ms_routes = get_routes_from_microsoft(LINK)
+all_ms_routes = get_routes_from_microsoft(ms_url)
 
 # IP address function - filters out IPv6 addresses, leave IPv4 only.
 o365_routes_website = filter_ipv4(all_ms_routes)
@@ -178,17 +181,17 @@ else:
 
 # DELETE outdated static routes
 if subnets_to_remove != []:
-    id_to_remove = get_id_to_remove(NETWORK_ID)
+    id_to_remove = get_id_to_remove(network_id)
     route_delete(id_to_remove)
 else:
     print('Nothing to remove!')
 
 # Advertise static routes to VPN
 # Get existing subnets again (after adding/removing the routes)
-o365_routes_existing = get_static_routes(NETWORK_ID)
+o365_routes_existing = get_static_routes(network_id)
 
 # TODO Advertise only routes with 'useVpn': False. If the list is empty, pass. Same as above for adding/removing routes
-to_advertise_over_vpn = get_advertised_over_vpn_routes(NETWORK_ID)
+to_advertise_over_vpn = get_advertised_over_vpn_routes(network_id)
 # print(f'Routes to advertise: {to_advertise_over_vpn}')
 
 advertised_vpn = to_advertise_vpn(to_advertise_over_vpn)
