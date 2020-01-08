@@ -156,7 +156,9 @@ def to_advertise_vpn(object_list):
     networks_controller.update_network_site_to_site_vpn(collect)
     print('MS Office 365 routes have been successfully advertised!')
 
-
+# TODO: Run the script continuously.
+# TODO: Implement logs into a file.
+# TODO: Redo printed information (possibly use pprint)
 # Fetch static routes from VPN Hub
 o365_routes_existing = get_static_routes(network_id)
 
@@ -196,6 +198,3 @@ to_advertise_over_vpn = get_advertised_over_vpn_routes(network_id)
 
 advertised_vpn = to_advertise_vpn(to_advertise_over_vpn)
 # print(f'Advertised: {advertised_vpn}')
-
-
-
