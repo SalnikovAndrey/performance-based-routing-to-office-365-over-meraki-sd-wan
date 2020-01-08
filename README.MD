@@ -1,11 +1,11 @@
 # Performance-based routing to MS Office 365 over Cisco Meraki SD-WAN.
 
-## Purpose
+## Objective
 
-###What does the script do?
+***What does the script do?***
 This script optimises routing to Microsoft Office 365 for Cisco Meraki SD-WAN solution.
 
-###How does the script do it?
+***How does the script do it?***
 
 Constantly checks MS online documentation, fetches up-to-date routes and automatically injects them into VPN Hub.
 As a result, performance-based routing to Office 365 is enabled.
