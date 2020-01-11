@@ -22,7 +22,7 @@ TODO: Create a diagram.
 
 ## Installation
 
-pip install meraki_sdk
+'''pip install meraki_sdk'''
 
 ## Usage
 
@@ -44,6 +44,3 @@ The script injects routes with the description "O365 - X.X.X.X". It is important
 Example:
 python3 o365_sd_wan.py -a {API key} -n {NetworkID} -g {IP address}
 
-## License
-
-TODO: Write license
