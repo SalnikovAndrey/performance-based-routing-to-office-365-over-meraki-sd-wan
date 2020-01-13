@@ -17,8 +17,11 @@ Implementation:
 - Injects the new routes to Meraki Auto VPN, 
 - Deletes outdated routes from Meraki Auto VPN.
 
-The diagram that explains a use case is located below: 
-TODO: Create a diagram.
+![Solution](pics/solution.png)
+
+![Automation](pics/automation.png)
+
+[Presentation](https://drive.google.com/file/d/1rs0msxhX5km2pTcq6rHoc_U8IgaeIDB1/view?usp=sharing)
 
 ## Installation
 
