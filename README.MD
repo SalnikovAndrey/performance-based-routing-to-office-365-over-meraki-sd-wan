@@ -25,7 +25,23 @@ Implementation:
 
 ## Installation
 
-'''pip3 install meraki'''
+1. Clone the repo
+```python
+git clone https://github.com/SalnikovAndrey/performance-based-routing-to-office-365-over-meraki-sd-wan
+```
+2. cd into directory
+```python
+cd performance-based-routing-to-office-365-over-meraki-sd-wan
+```
+3. Create the virtual environment in a sub dir in the same directory
+```python
+python3 -m venv venv
+```
+4. Start the virtual environment and install requirements.txt
+```python
+source venv/bin/activate
+pip install -r requirements.txt 
+```
 
 ## Usage
 
@@ -36,8 +52,13 @@ The script must be executed with the following flags:
 2. Default gateway (-g):
 3. NetworkID (VPN Concentrator) (-n):
 
+```python
 python3 o365_sd_wan.py -a {API key} -n {NetworkID} -g {IP address}
-
+```
+Example:
+```python
+python3 o365_sd_wan.py -a sdfh&8sdkfj2345234LKJFSDhjsdf -n L_13847134355 -g 192.168.1.1
+```
 
 	- Get your OrganisationID:
 	https://dashboard.meraki.com/api/v0/organizations
@@ -47,6 +68,5 @@ python3 o365_sd_wan.py -a {API key} -n {NetworkID} -g {IP address}
 Important note:
 The script injects routes with the description "O365 - X.X.X.X". Please, make sure that these descriptions remain unmodified and there are no other descriptions that contain the prefix "O365".
 
-Example:
-python3 o365_sd_wan.py -a sdfh&8sdkfj2345234LKJFSDhjsdf -n L_13847134355 -g 192.168.1.1
+
 
