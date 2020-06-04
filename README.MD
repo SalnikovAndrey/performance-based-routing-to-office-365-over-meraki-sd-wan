@@ -25,21 +25,24 @@ Implementation:
 
 ## Installation
 
-1. Clone the repo
+1. Clone the repository
 ```console
 git clone https://github.com/SalnikovAndrey/performance-based-routing-to-office-365-over-meraki-sd-wan
 ```
-2. cd into directory
+2. Navigate into directory
 ```console
 cd performance-based-routing-to-office-365-over-meraki-sd-wan
 ```
-3. Create the virtual environment in a sub dir in the same directory
+3. Create the virtual environment
 ```console
 python3 -m venv venv
 ```
-4. Start the virtual environment and install requirements.txt
+4. Start the virtual environment
 ```console
 source venv/bin/activate
+```
+5. Install requirements.txt
+```console
 pip install -r requirements.txt 
 ```
 
