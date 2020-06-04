@@ -26,19 +26,19 @@ Implementation:
 ## Installation
 
 1. Clone the repo
-```python
+```console
 git clone https://github.com/SalnikovAndrey/performance-based-routing-to-office-365-over-meraki-sd-wan
 ```
 2. cd into directory
-```python
+```console
 cd performance-based-routing-to-office-365-over-meraki-sd-wan
 ```
 3. Create the virtual environment in a sub dir in the same directory
-```python
+```console
 python3 -m venv venv
 ```
 4. Start the virtual environment and install requirements.txt
-```python
+```console
 source venv/bin/activate
 pip install -r requirements.txt 
 ```
@@ -52,11 +52,11 @@ The script must be executed with the following flags:
 2. Default gateway (-g):
 3. NetworkID (VPN Concentrator) (-n):
 
-```python
+```console
 python3 o365_sd_wan.py -a {API key} -n {NetworkID} -g {IP address}
 ```
 Example:
-```python
+```console
 python3 o365_sd_wan.py -a sdfh&8sdkfj2345234LKJFSDhjsdf -n L_13847134355 -g 192.168.1.1
 ```
 
