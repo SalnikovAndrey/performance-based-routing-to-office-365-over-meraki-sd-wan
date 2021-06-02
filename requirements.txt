@@ -7,5 +7,5 @@ idna==2.9
 meraki==0.110.2
 multidict==4.7.6
 requests==2.23.0
-urllib3==1.25.9
+urllib3==1.26.5
 yarl==1.4.2
